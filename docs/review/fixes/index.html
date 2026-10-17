@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Meridian interaction fixes</title>
+<style>
+  :root { color-scheme: dark; --bg:#121212; --panel:#161616; --line:#262626; --fg:#ededed; --fg2:#ababab; --fg3:#8f8f8f; --accent:#4f8cff; --bad:#f39a9a; --good:#86d2a6; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 13px/1.5 Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 1400px; margin: 0 auto; padding: 24px; }
+  h1 { font-size: 17px; font-weight: 600; margin: 0 0 4px; }
+  p.lead { color: var(--fg2); margin: 0 0 20px; max-width: 860px; }
+  section { border: 1px solid var(--line); background: var(--panel); border-radius: 12px; padding: 16px; margin-bottom: 18px; }
+  h2 { font-size: 14px; font-weight: 600; margin: 0 0 6px; }
+  h3 { font-size: 12px; font-weight: 500; color: var(--fg3); margin: 16px 0 6px; }
+  ul { margin: 0 0 4px; padding-left: 18px; color: var(--fg2); max-width: 900px; }
+  li { margin: 2px 0; }
+  li strong { color: var(--fg); font-weight: 500; }
+  .strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  .strip.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  figure { margin: 0; }
+  figcaption { color: var(--fg3); font-size: 12px; margin-top: 4px; }
+  figcaption b { font-weight: 500; }
+  img { width: 100%; display: block; border: 1px solid var(--line); border-radius: 6px; background: #000; }
+  .tag { display: inline-block; font-size: 11px; font-weight: 600; padding: 1px 6px; border-radius: 4px; margin-right: 6px; }
+  .before { color: var(--bad); background: rgb(235 90 90 / 0.12); }
+  .after { color: var(--good); background: rgb(79 182 127 / 0.12); }
+  code { font-size: 12px; color: var(--fg2); }
+  @media (max-width: 800px) { .strip, .strip.three, .two { grid-template-columns: 1fr 1fr; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Meridian interaction fixes</h1>
+  <p class="lead">Evidence for the three reported defects, before and after, from the unified prototype at 1512×805 with real (space-taking) scrollbars. Frames are consecutive screen captures; the times are from the recording. Live: <code>http://localhost:3100/prototypes/unified</code> (reload the tab first).</p>
+
+  <section>
+    <h2>1 · Page bouncing — cause and fix</h2>
+    <ul>
+      <li><strong>Navigation remounted content and animated it in from nothing.</strong> Switching view replaced the whole main area, then faded it in from opacity 0 while it rose 6px; switching request did the same to the request body (4px). The first frame after each click was blank, and persistent chrome (pane headers, search, filters) dropped and sprang back — the bounce.</li>
+      <li><strong>The sliding selection painted over the rows it crossed.</strong> The highlight lives in the newly selected row and travels from the old one; moving down, it was drawn on top of the rows in between, so the previous request’s title (and the “Inbox” label in the sidebar) disappeared for ~150ms.</li>
+      <li><strong>Opening a request from a table cross-faded two full pages.</strong> The table and the request were both semi-transparent and 40px apart for several frames.</li>
+      <li>Not the cause (measured): no scroll restoration jumps, no focus scrolling (all focus calls use <code>preventScroll</code>), no scrolling of hidden containers, no layout shifts, no long frames.</li>
+    </ul>
+    <p style="color:var(--fg2);max-width:900px;margin:8px 0 0">Fix: views, requests and request pages now swap in place in a single frame (the table stays mounted under an open request, so scroll and ticked rows survive). Selection highlights paint beneath row content. Lists scroll only themselves, below sticky headers. No delays were added. Measured afterwards in Chrome at 120Hz and on the production build: 0 empty or faded frames, header position constant, no frames over 40ms.</p>
+
+    <h3><span class="tag before">Before</span>Clicking the third request (1343 → 1447 → 1455 → 1488ms)</h3>
+    <div class="strip">
+      <figure><img src="frames/req-before-1.jpg" alt=""><figcaption>Previous request</figcaption></figure>
+      <figure><img src="frames/req-before-2.jpg" alt=""><figcaption><b>Blank body</b>; highlight hides row 2</figcaption></figure>
+      <figure><img src="frames/req-before-3.jpg" alt=""><figcaption>Fading in, 4px low</figcaption></figure>
+      <figure><img src="frames/req-before-4.jpg" alt=""><figcaption>Still settling</figcaption></figure>
+    </div>
+    <h3><span class="tag after">After</span>Same click (1508 → 1624 → 1637 → 1655ms)</h3>
+    <div class="strip">
+      <figure><img src="frames/req-after-1.jpg" alt=""><figcaption>Previous request</figcaption></figure>
+      <figure><img src="frames/req-after-2.jpg" alt=""><figcaption>New request complete; row 2 readable under the moving highlight</figcaption></figure>
+      <figure><img src="frames/req-after-3.jpg" alt=""><figcaption>Highlight travelling</figcaption></figure>
+      <figure><img src="frames/req-after-4.jpg" alt=""><figcaption>Settled</figcaption></figure>
+    </div>
+
+    <h3><span class="tag before">Before</span>Inbox → My work</h3>
+    <div class="strip">
+      <figure><img src="frames/view-before-1.jpg" alt=""><figcaption>Inbox</figcaption></figure>
+      <figure><img src="frames/view-before-2.jpg" alt=""><figcaption><b>Whole main area blank</b>; “Inbox” label hidden</figcaption></figure>
+      <figure><img src="frames/view-before-3.jpg" alt=""><figcaption>Fading in 6px low — headers move</figcaption></figure>
+      <figure><img src="frames/view-before-4.jpg" alt=""><figcaption>Settling</figcaption></figure>
+    </div>
+    <h3><span class="tag after">After</span>Inbox → My work</h3>
+    <div class="strip">
+      <figure><img src="frames/view-after-1.jpg" alt=""><figcaption>Inbox</figcaption></figure>
+      <figure><img src="frames/view-after-2.jpg" alt=""><figcaption>My work, complete, headers in place</figcaption></figure>
+      <figure><img src="frames/view-after-3.jpg" alt=""><figcaption>Sidebar highlight travelling beneath the labels</figcaption></figure>
+      <figure><img src="frames/view-after-4.jpg" alt=""><figcaption>Settled</figcaption></figure>
+    </div>
+
+    <h3><span class="tag before">Before</span> / <span class="tag after">After</span>Opening a request from All requests</h3>
+    <div class="strip three">
+      <figure><img src="frames/page-before-2.jpg" alt=""><figcaption><b>Before:</b> table and request cross-fading, 40px apart</figcaption></figure>
+      <figure><img src="frames/page-after-1.jpg" alt=""><figcaption>After: table</figcaption></figure>
+      <figure><img src="frames/page-after-2.jpg" alt=""><figcaption>After: request, next frame, complete</figcaption></figure>
+    </div>
+  </section>
+
+  <section>
+    <h2>2 · Calendar</h2>
+    <ul>
+      <li>Replaces the browser’s date picker in the request details and in New request. Same overlay surface, border, radius and shadow as Meridian’s other menus; 13px numerals, tabular.</li>
+      <li>Selected date: the one accent fill. Today: accent numeral with a dot. Other months and unavailable days (before today, in New request) are dimmed. Six rows always, so the height never changes between months.</li>
+      <li>Keyboard (WAI-ARIA date picker dialog): arrows by day/week · Home/End to week start/end · Page Up/Down by month, with Shift by year · Enter/Space chooses · Escape closes and returns to the field · Tab stays inside. Opens on the selected date, or today.</li>
+      <li>Dates are plain <code>yyyy-mm-dd</code> computed in UTC — checked across month ends, leap years, the UK clock changes and time zones from UTC−8 to UTC+14.</li>
+      <li>No dependency: none of the vetted libraries provides a calendar, and the hard parts (one layer at a time, dialogs, focus) are Meridian’s own popover layer.</li>
+    </ul>
+    <div class="two" style="margin-top:12px">
+      <figure><img src="calendar-inspector.png" alt="Calendar under the Due date field in request details"><figcaption>Request details: due date 16 Oct selected, today 13 Oct</figcaption></figure>
+      <figure><img src="calendar-dialog.png" alt="Calendar above the Needed by field in the New request dialog"><figcaption>New request: opens above when there isn’t room below; past days unavailable; keyboard focus on 22</figcaption></figure>
+    </div>
+  </section>
+
+  <section>
+    <h2>3 · Overlapping popovers</h2>
+    <ul>
+      <li><strong>Native calendar.</strong> The browser’s date popup lives outside the page: nothing in Meridian knew it was open, so it couldn’t be closed when another menu opened, ignored the app’s Escape handling, and always drew above everything — the calendar over the approver list.</li>
+      <li><strong>Menus inside New request opened behind the dialog</strong> (rendered under the browser’s top layer) and couldn’t be used.</li>
+      <li><strong>Shortcuts acted underneath an open menu</strong>: C opened New request over it, J changed the request beneath it, [ moved the layout so it detached from its field; the menu stayed open through all of them.</li>
+    </ul>
+    <p style="color:var(--fg2);max-width:900px;margin:8px 0 0">Fix: one popover layer for every picker, menu and the calendar. Opening one — by pointer or keyboard — or opening a dialog closes the previous one. Each renders in the browser’s top layer (inside the dialog when there is one), so nothing stacks or clips and no z-index is involved. Escape and choosing return focus to the field; clicking elsewhere closes it and leaves focus where you clicked; Tab from a list moves on from its field. Page shortcuts wait while a popover is open.</p>
+    <div class="strip three" style="margin-top:12px">
+      <figure><img src="stacking-before-dialog.png" alt=""><figcaption><b>Before:</b> the Type list opens behind New request</figcaption></figure>
+      <figure><img src="stacking-after-dialog.png" alt=""><figcaption>After: above the dialog, usable</figcaption></figure>
+      <figure><img src="stacking-after-approver.png" alt=""><figcaption>After: calendar open, then Approver — only the approver list remains</figcaption></figure>
+    </div>
+  </section>
+</main>
+</body>
+</html>

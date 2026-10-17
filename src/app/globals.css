@@ -1,0 +1,394 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens. Surfaces step up from rail → canvas → shell → panel → raised → selected.
+ * Each status colour has exactly one meaning and is always paired with a glyph and label.
+ */
+@theme {
+  --font-sans:
+    var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    sans-serif;
+
+  --color-rail: #0c0c0c;
+  --color-canvas: #121212;
+  --color-shell: #161616;
+  --color-panel: #191919;
+  --color-raised: #1f1f1f;
+  --color-selected: #252525;
+  --color-overlay: #1c1c1c;
+
+  --color-line: #262626;
+  --color-line-soft: #1f1f1f;
+  --color-line-strong: #333333;
+
+  --color-fg: #ededed;
+  --color-fg-2: #ababab;
+  --color-fg-3: #8f8f8f;
+  --color-fg-4: #5e5e5e;
+
+  --color-accent: #4f8cff;
+  --color-accent-fg: #8fb5ff;
+  --color-danger: #eb5a5a;
+  --color-danger-fg: #f39a9a;
+  --color-success: #4fb67f;
+  --color-success-fg: #86d2a6;
+
+  --color-st-triage: #5e9bff;
+  --color-st-todo: #8f8f8f;
+  --color-st-progress: #e2b53e;
+  --color-st-review: #9b87f5;
+  --color-st-done: #4fb67f;
+  --color-st-declined: #6f6f6f;
+
+  --text-micro: 11px;
+  --text-micro--line-height: 14px;
+  --text-meta: 12px;
+  --text-meta--line-height: 16px;
+  --text-ui: 13px;
+  --text-ui--line-height: 18px;
+  --text-read: 14px;
+  --text-read--line-height: 22px;
+  --text-title: 15px;
+  --text-title--line-height: 20px;
+  --text-heading: 19px;
+  --text-heading--line-height: 26px;
+
+  --radius-control: 6px;
+  --radius-chip: 5px;
+  --radius-panel: 10px;
+  --radius-tray: 12px;
+
+  --shadow-float: 0 0 0 1px rgb(0 0 0 / 0.4), 0 12px 32px -8px rgb(0 0 0 / 0.6);
+  --shadow-sheet: -12px 0 32px -12px rgb(0 0 0 / 0.7);
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    background: var(--color-canvas);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background: var(--color-canvas);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    font-size: var(--text-ui);
+    line-height: var(--text-ui--line-height);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #343434 transparent;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--color-accent) 40%, transparent);
+  }
+
+  :where(a, button, input, textarea, select, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 1px;
+  }
+
+  button:not(:disabled),
+  [role="button"],
+  [role="tab"],
+  [role="option"],
+  summary {
+    cursor: pointer;
+  }
+
+  svg.lucide {
+    stroke-width: 1.75;
+    flex-shrink: 0;
+  }
+
+  dialog::backdrop {
+    background: rgb(0 0 0 / 0.6);
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.7);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      transition-duration: 0ms !important;
+      animation-duration: 0ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* Tinted status chip. Set --st on the element to the status colour. */
+  .status-chip {
+    background: color-mix(in oklab, var(--st) 14%, transparent);
+    color: color-mix(in oklab, var(--st) 68%, white);
+  }
+
+  /* A card that leans slightly toward a semantic colour without becoming loud. */
+  .tinted-card {
+    background: color-mix(in oklab, var(--st) 5%, var(--color-panel));
+    border-color: color-mix(in oklab, var(--st) 28%, var(--color-line));
+  }
+
+  /* The same lean, for a section embedded in a framed parent. */
+  .tinted-fill {
+    background: color-mix(in oklab, var(--st) 6%, var(--color-panel));
+  }
+
+  .field {
+    width: 100%;
+    border-radius: var(--radius-control);
+    border: 1px solid var(--color-line);
+    background: var(--color-canvas);
+    color: var(--color-fg);
+    padding: 6px 10px;
+    font-size: var(--text-ui);
+    line-height: var(--text-ui--line-height);
+    transition: border-color 100ms ease-out;
+  }
+  .field::placeholder {
+    color: var(--color-fg-3);
+  }
+  .field:hover {
+    border-color: var(--color-line-strong);
+  }
+  .field:focus-visible {
+    outline: none;
+    border-color: color-mix(in oklab, var(--color-accent) 70%, var(--color-line));
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-accent) 22%, transparent);
+  }
+  .field[aria-invalid="true"] {
+    border-color: color-mix(in oklab, var(--color-danger) 70%, var(--color-line));
+  }
+  textarea.field {
+    resize: none;
+    field-sizing: content;
+    min-height: 64px;
+    max-height: 240px;
+  }
+
+  /* Hide scrollbars on horizontally scrolling chip rows; content stays reachable by touch/trackpad. */
+  .scroll-row {
+    overflow-x: auto;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+  }
+  .scroll-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .checkbox {
+    appearance: none;
+    display: inline-grid;
+    place-content: center;
+    flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+    margin: 0;
+    border-radius: 4px;
+    border: 1px solid var(--color-line-strong);
+    background: var(--color-canvas);
+    transition:
+      background-color 100ms ease-out,
+      border-color 100ms ease-out;
+  }
+  .checkbox:hover {
+    border-color: var(--color-fg-4);
+  }
+  .checkbox:checked,
+  .checkbox:indeterminate {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+  .checkbox:checked::after {
+    content: "";
+    width: 9px;
+    height: 9px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 9 9'%3E%3Cpath d='M1.5 4.7 3.5 6.6 7.5 2.4' fill='none' stroke='white' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+  }
+  .checkbox:indeterminate::after {
+    content: "";
+    width: 8px;
+    height: 1.5px;
+    border-radius: 1px;
+    background: white;
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/*
+ * Motion system. Classes are added only where MotionContext is on (the unified
+ * prototype), so the original concepts keep their static behaviour.
+ * Unlayered on purpose: these must win over Tailwind's transition utilities.
+ * Selection (j/k, clicking a request) deliberately has no motion.
+ */
+:root {
+  --motion-ease: cubic-bezier(0.23, 1, 0.32, 1);
+  --motion-press: 120ms;
+  --motion-fast: 150ms;
+  --motion-panel: 180ms;
+  --motion-exit: 100ms;
+}
+
+/* Press feedback on buttons only; never on rows, list items or text. */
+.motion-press {
+  transition-property: color, background-color, border-color, transform;
+  transition-duration: 100ms, 100ms, 100ms, var(--motion-press);
+  transition-timing-function: ease, ease, ease, var(--motion-ease);
+}
+.motion-press:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* Popovers (pickers, filters, account menu): fade and settle from the trigger's side. Close is instant. */
+.motion-pop {
+  transition:
+    opacity var(--motion-fast) var(--motion-ease),
+    transform var(--motion-fast) var(--motion-ease);
+}
+
+/* Dialog and its backdrop enter together. Close is instant. */
+dialog.motion-dialog[open] {
+  transition:
+    opacity var(--motion-panel) var(--motion-ease),
+    transform var(--motion-panel) var(--motion-ease);
+}
+dialog.motion-dialog[open]::backdrop {
+  transition: opacity var(--motion-panel) var(--motion-ease);
+}
+
+/* Something new in place: a new activity entry. */
+.motion-enter {
+  transition:
+    opacity 220ms var(--motion-ease),
+    transform 220ms var(--motion-ease);
+}
+
+/* Entry states. Browsers without @starting-style simply show the final state. */
+@starting-style {
+  .motion-pop {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  .motion-pop[data-side="top"] {
+    transform: translateY(4px);
+  }
+  dialog.motion-dialog[open] {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  dialog.motion-dialog[open]::backdrop {
+    opacity: 0;
+  }
+  .motion-enter {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+/* Status colour cross-fades when a request changes state. */
+.motion-colors {
+  transition:
+    background-color var(--motion-fast) ease,
+    color var(--motion-fast) ease;
+}
+
+/* The progress segment completed by the latest action fills left to right, once. */
+@keyframes motion-fill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+.motion-fill {
+  transform-origin: left center;
+  animation: motion-fill 280ms var(--motion-ease) both;
+}
+
+/*
+ * Approval dock: stays mounted while a decision is pending and toggles state,
+ * so rapid scrolling retargets the transition instead of restarting it.
+ * In: 150ms. Out: 100ms, then hidden (and inert) so it can't be reached.
+ */
+.decision-dock {
+  transition:
+    opacity var(--motion-fast) var(--motion-ease),
+    transform var(--motion-fast) var(--motion-ease),
+    visibility 0s;
+}
+.decision-dock[data-state="closed"] {
+  opacity: 0;
+  transform: translateY(6px);
+  visibility: hidden;
+  transition:
+    opacity var(--motion-exit) var(--motion-ease),
+    transform var(--motion-exit) var(--motion-ease),
+    visibility 0s linear var(--motion-exit);
+}
+
+/*
+ * Collapsible sidebar. <html data-sidebar="collapsed"> is set before first
+ * paint and by the toggle; width animates here so the workspace reflows with
+ * it. The panel's contents keep their width and slide/fade, so nothing squeezes.
+ */
+:root {
+  --motion-sidebar: 320ms;
+}
+[data-sidebar-panel] {
+  width: 220px;
+  transition: width var(--motion-sidebar) var(--motion-ease);
+}
+html[data-sidebar="collapsed"] [data-sidebar-panel] {
+  width: 0;
+}
+[data-sidebar-inner] {
+  width: 220px;
+  transition:
+    transform var(--motion-sidebar) var(--motion-ease),
+    opacity 200ms var(--motion-ease);
+}
+html[data-sidebar="collapsed"] [data-sidebar-inner] {
+  transform: translateX(-24px);
+  opacity: 0;
+}
+/* The restore control grows into the first pane's header as the sidebar leaves. */
+[data-sidebar-restore] {
+  width: 0;
+  margin-right: -10px;
+  opacity: 0;
+  overflow: hidden;
+  transition:
+    width var(--motion-sidebar) var(--motion-ease),
+    margin-right var(--motion-sidebar) var(--motion-ease),
+    opacity 160ms var(--motion-ease);
+}
+html[data-sidebar="collapsed"] [data-sidebar-restore] {
+  width: 28px;
+  margin-right: 0;
+  opacity: 1;
+}
+
+/*
+ * Reduced motion: the base layer already sets every transition and animation to
+ * 0ms (layered !important wins), so all of the motion above becomes instant —
+ * no movement, no fades. The press scale would otherwise snap, so drop it too.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .motion-press:active:not(:disabled) {
+    transform: none;
+  }
+}
