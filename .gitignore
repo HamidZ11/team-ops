@@ -45,3 +45,9 @@ next-env.d.ts
 
 # regenerable motion-review frames (large; iCloud duplicates)
 /docs/review/motion/clips/
+
+# iCloud Drive conflict copies (e.g. "file 2.tsx")
+* [0-9].*
+
+# motion review page needs the ignored clips; not useful without them
+/docs/review/motion/
