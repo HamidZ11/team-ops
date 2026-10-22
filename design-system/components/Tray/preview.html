@@ -1,0 +1,20 @@
+<!doctype html>
+<html data-theme="dark">
+<head><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../bundle.css"><script src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js"></script><script src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"></script><script src="../bundle.js"></script><meta charset="utf-8"><title>Tray — preview</title>
+<style>body{margin:0;background:var(--color-canvas)} #root{padding:16px} .row{display:flex;flex-wrap:wrap;align-items:center;gap:12px} .row+.row{margin-top:12px}</style>
+</head>
+<body>
+<div id="root" class="mr-root"></div>
+<script>
+  var M = window.Meridian, h = React.createElement;
+  function row() { return h.apply(null, ["div", { className: "row" }].concat([].slice.call(arguments))); }
+  ReactDOM.createRoot(document.getElementById("root")).render(h(React.Fragment, null,
+    h(M.Tray, {
+      label: "All requests", style: { height: 268 },
+      tabs: [{ id: "all", label: "All", count: 3 }, { id: "in_progress", status: "in_progress", count: 2 }, { id: "in_review", status: "in_review", count: 1 }],
+      toolbar: [h(M.FilterChip, { key: "o", icon: "user-round", label: "Owner" }), h(M.FilterChip, { key: "t", icon: "layers", label: "Type" }), h("span", { key: "s", className: "text-meta", style: { marginLeft: "auto", paddingRight: 4, color: "var(--color-fg-3)" } }, "Sorted by updated")],
+    }, h(M.EmptyState, { title: "No requests match these filters", body: "Try removing a filter or searching for something else." }))
+  ));
+</script>
+</body>
+</html>

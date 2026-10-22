@@ -1,0 +1,30 @@
+<!doctype html>
+<html data-theme="dark">
+<head><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../bundle.css"><script src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js"></script><script src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"></script><script src="../bundle.js"></script><meta charset="utf-8"><title>PropertyList — preview</title>
+<style>body{margin:0;background:var(--color-canvas)} #root{padding:16px} .row{display:flex;flex-wrap:wrap;align-items:center;gap:12px} .row+.row{margin-top:12px}</style>
+</head>
+<body>
+<div id="root" class="mr-root"></div>
+<script>
+  var M = window.Meridian, h = React.createElement;
+  function row() { return h.apply(null, ["div", { className: "row" }].concat([].slice.call(arguments))); }
+  ReactDOM.createRoot(document.getElementById("root")).render(h(React.Fragment, null,
+    h("div", { style: { display: "grid", gridTemplateColumns: "288px 1fr", gap: 32, alignItems: "start" } },
+      h("div", { style: { padding: "4px 0" } }, h(M.PropertyList, { rows: [
+        { label: "Status", value: [h(M.StatusChip, { key: "s", status: "in_progress" }), h(M.BlockedChip, { key: "b" })] },
+        { label: "Priority", editable: true, value: [h(M.PriorityIcon, { key: "i", priority: "high" }), h("span", { key: "l" }, "High")] },
+        { label: "Owner", editable: true, value: [h(M.Avatar, { key: "a", name: "Noah Adeyemi", size: 18 }), h("span", { key: "n" }, "Noah Adeyemi")] },
+        { label: "Approver", editable: true, value: h("span", { style: { color: "var(--color-fg-3)" } }, "Not required") },
+        { label: "Due date", editable: true, value: [h(M.Icon, { key: "c", name: "calendar-days", size: 14, className: "mr-fg-2" }), h("span", { key: "d", className: "mr-num" }, "17 Oct 2026")] },
+        { label: "Type", value: [h(M.Icon, { key: "k", name: "key-round", size: 14, className: "mr-fg-2" }), h("span", { key: "t" }, "Access")] }
+      ] })),
+      h(M.PropertyList, { layout: "facts", rows: [
+        { label: "Status", value: h(M.StatusChip, { status: "in_review" }) },
+        { label: "Owner", editable: true, value: [h(M.Avatar, { key: "a", name: "Lena Fischer", size: 18 }), h("span", { key: "n" }, "Lena")] },
+        { label: "Priority", editable: true, value: [h(M.PriorityIcon, { key: "i", priority: "medium" }), h("span", { key: "l" }, "Medium")] },
+        { label: "Due", value: h("span", { className: "mr-num" }, "28 Oct") }
+      ] }))
+  ));
+</script>
+</body>
+</html>

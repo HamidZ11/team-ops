@@ -1,0 +1,21 @@
+<!doctype html>
+<html data-theme="dark">
+<head><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../bundle.css"><script src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js"></script><script src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"></script><script src="../bundle.js"></script><meta charset="utf-8"><title>Field — preview</title>
+<style>body{margin:0;background:var(--color-canvas)} #root{padding:16px} .row{display:flex;flex-wrap:wrap;align-items:center;gap:12px} .row+.row{margin-top:12px}</style>
+</head>
+<body>
+<div id="root" class="mr-root"></div>
+<script>
+  var M = window.Meridian, h = React.createElement;
+  function row() { return h.apply(null, ["div", { className: "row" }].concat([].slice.call(arguments))); }
+  ReactDOM.createRoot(document.getElementById("root")).render(h(React.Fragment, null,
+    h("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, maxWidth: 640 } },
+      h(M.Field, { label: "Title", placeholder: "Laptop for new starter" }),
+      h(M.Field, { label: "Reason", invalid: true, defaultValue: "", placeholder: "What is it waiting on?", error: "Add a reason so the owner knows what to fix." }),
+      h("div", { style: { gridColumn: "1 / -1" } },
+        h(M.Field, { label: "Description", multiline: true, placeholder: "What do you need, by when, and why?" }))
+    )
+  ));
+</script>
+</body>
+</html>

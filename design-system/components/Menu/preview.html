@@ -1,0 +1,26 @@
+<!doctype html>
+<html data-theme="dark">
+<head><link rel="stylesheet" href="../../tokens.css"><link rel="stylesheet" href="../bundle.css"><script src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js"></script><script src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"></script><script src="../bundle.js"></script><meta charset="utf-8"><title>Menu — preview</title>
+<style>body{margin:0;background:var(--color-canvas)} #root{padding:16px} .row{display:flex;flex-wrap:wrap;align-items:center;gap:12px} .row+.row{margin-top:12px}</style>
+</head>
+<body>
+<div id="root" class="mr-root"></div>
+<script>
+  var M = window.Meridian, h = React.createElement;
+  function row() { return h.apply(null, ["div", { className: "row" }].concat([].slice.call(arguments))); }
+  ReactDOM.createRoot(document.getElementById("root")).render(h(React.Fragment, null,
+    row(
+      h(M.Menu, { title: "Owner", searchable: true, placeholder: "Assign to…", defaultValue: "lena", activeIndex: 1, options: [
+        { value: "none", label: "Unassigned", icon: h(M.Avatar, { name: null, size: 16 }) },
+        { value: "lena", label: "Lena Fischer", icon: h(M.Avatar, { name: "Lena Fischer", size: 16 }), hint: "Finance" },
+        { value: "daniel", label: "Daniel Okafor", icon: h(M.Avatar, { name: "Daniel Okafor", size: 16 }), hint: "IT" },
+        { value: "tomas", label: "Tomás Lindqvist", icon: h(M.Avatar, { name: "Tomás Lindqvist", size: 16 }), hint: "Facilities" }
+      ] }),
+      h(M.Menu, { width: 200, defaultValue: "high", activeIndex: 4, options: ["urgent", "high", "medium", "low", "none"].map(function (p) {
+        return { value: p, label: M.PRIORITY_META[p].label, icon: h(M.PriorityIcon, { priority: p }), separated: p === "none" };
+      }) })
+    )
+  ));
+</script>
+</body>
+</html>
