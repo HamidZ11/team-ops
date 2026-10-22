@@ -1,0 +1,1 @@
+Meridian's six status glyphs from `src/components/request/glyphs.tsx`, drawn on a 14px grid with each status colour baked in (`color-st-*`; Done and Declined cut their mark in `color-canvas`). Use them where the `StatusIcon` component can't run — docs, slides, email. Always set the status label beside the glyph. In product code use `StatusIcon`, which reads the tokens.
